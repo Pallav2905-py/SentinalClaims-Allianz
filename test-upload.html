@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Claim Submission</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        form { display: flex; flex-direction: column; gap: 15px; }
+        textarea { min-height: 100px; padding: 10px; }
+        input[type="file"] { padding: 10px; }
+        button { padding: 10px; background: #0070f3; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0051cc; }
+        .result { margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 5px; }
+        .error { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e9; color: #2e7d32; }
+    </style>
+</head>
+<body>
+    <h1>Test Claim Submission</h1>
+    <p>Use this page to test the file upload functionality after logging in.</p>
+    
+    <form id="claimForm">
+        <label for="description">Description:</label>
+        <textarea id="description" name="textDescription" placeholder="Describe the incident..." required minlength="10"></textarea>
+        
+        <label for="files">Upload Files (optional):</label>
+        <input type="file" id="files" name="files" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.mp3,.wav,.m4a">
+        
+        <button type="submit">Submit Claim</button>
+    </form>
+    
+    <div id="result"></div>
+    
+    <script>
+        document.getElementById('claimForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Submitting...';
+            resultDiv.className = 'result';
+            
+            const formData = new FormData(e.target);
+            
+            try {
+                const response = await fetch('/api/user/submit-claim', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <h3>Success!</h3>
+                        <p>${data.message}</p>
+                        <p><strong>Claim ID:</strong> ${data.claimId}</p>
+                        <p><strong>Status:</strong> ${data.status}</p>
+                    `;
+                    e.target.reset();
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `<h3>Error</h3><p>${data.error}</p>`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<h3>Error</h3><p>${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
