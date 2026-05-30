@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Script from 'next/script';
 import { useSession } from '@/lib/auth-client';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 
@@ -160,6 +161,14 @@ export default function PolicyCopilotPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-50">
+      <Script
+        src="https://unpkg.com/@elevenlabs/convai-widget-embed"
+        strategy="afterInteractive"
+      />
+      <div className="fixed bottom-4 right-4 z-50">
+        <elevenlabs-convai agent-id="agent_3101kmpwmk34en78ghaz0xft85xp"></elevenlabs-convai>
+      </div>
+
       {/* Header */}
       <header className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">

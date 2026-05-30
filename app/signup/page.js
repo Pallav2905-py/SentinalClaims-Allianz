@@ -63,7 +63,7 @@ export default function SignupPage() {
               </div>
               <div>
                 <div className="text-lg font-bold text-gray-900">SentinelClaims</div>
-                <div className="text-xs text-gray-500">Powered by Allianz</div>
+                <div className="text-xs text-gray-500">Powered by AI</div>
               </div>
             </div>
           </div>

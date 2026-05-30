@@ -42,7 +42,7 @@ export default function Home() {
             </div>
             <div>
               <h1 className="text-xl font-bold text-[#003781]">SentinelClaims</h1>
-              <p className="text-xs text-gray-600">Powered by Allianz</p>
+              <p className="text-xs text-gray-600">Powered by AI</p>
             </div>
           </div>
           
@@ -213,7 +213,7 @@ export default function Home() {
       <footer className="border-t border-gray-200 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center text-sm text-gray-600">
-            <p className="mb-2">© 2026 SentinelClaims - Allianz Insurance. All rights reserved.</p>
+            <p className="mb-2">© 2026 SentinelClaims. All rights reserved.</p>
             <p className="text-xs text-gray-500">AI-powered insurance fraud detection and claims processing platform</p>
           </div>
         </div>

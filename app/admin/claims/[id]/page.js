@@ -145,6 +145,12 @@ export default function ClaimDetailsPage() {
     });
   };
 
+  const formatAgentName = (name) => {
+    return (name || 'agent')
+      .replace('-agent', '')
+      .replace(/(^|\s)\S/g, (t) => t.toUpperCase());
+  };
+
   if (isPending || loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 via-blue-50 to-gray-50">
@@ -270,11 +276,73 @@ export default function ClaimDetailsPage() {
             )}
 
             {/* AI Explanation */}
-            {claim.fraudAnalysis?.explanation && (
+
+
+            {/* Nemo Agent Workflow */}
+            {claim.agentWorkflow?.steps?.length > 0 && (
               <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">AI Analysis</h2>
-                <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
-                  <MarkdownRenderer content={claim.fraudAnalysis.explanation} />
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Nemo Agent Workflow</h2>
+                <p className="text-sm text-gray-600 mb-4">
+                  Completed in approximately {claim.agentWorkflow.durationSeconds || 0} second(s)
+                </p>
+                <div className="space-y-3">
+                  {claim.agentWorkflow.steps.map((step, idx) => (
+                    <div key={`agent-step-${idx}`} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-semibold text-gray-900">
+                          {idx + 1}. {formatAgentName(step.agent)} Agent
+                        </p>
+                        <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700 border border-blue-200">
+                          {step.decision}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1">{step.summary}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Payout Recommendation */}
+            {claim.payoutDecision && (
+              <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Payout Agent Recommendation</h2>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    <p className="text-xs text-gray-500">Claimed Amount</p>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {claim.payoutDecision.currency || 'AUD'} {claim.payoutDecision.claimedAmount ?? 0}
+                    </p>
+                  </div>
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    <p className="text-xs text-gray-500">Recommended Payout</p>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {claim.payoutDecision.currency || 'AUD'} {claim.payoutDecision.recommendedPayout ?? 0}
+                    </p>
+                  </div>
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    <p className="text-xs text-gray-500">Eligibility</p>
+                    <p className="text-sm font-semibold text-gray-900">{claim.payoutDecision.eligible ? 'Eligible' : 'Not Eligible'}</p>
+                  </div>
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    <p className="text-xs text-gray-500">Fast Track (&lt;= 500)</p>
+                    <p className="text-sm font-semibold text-gray-900">{claim.payoutDecision.fastTrack ? 'Yes' : 'No'}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Audit Summary */}
+            {claim.auditSummary?.summary && (
+              <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Audit Agent Handoff</h2>
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <p className="text-sm text-gray-800 whitespace-pre-wrap">{claim.auditSummary.summary}</p>
+                  {claim.auditSummary.humanRecommendation && (
+                    <p className="text-xs text-gray-600 mt-3">
+                      Recommended human action: <span className="font-semibold">{claim.auditSummary.humanRecommendation}</span>
+                    </p>
+                  )}
                 </div>
               </div>
             )}
@@ -312,7 +380,17 @@ export default function ClaimDetailsPage() {
                 </div>
               </div>
             )}
+                        {claim.fraudAnalysis?.explanation && (
+              <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">AI Analysis</h2>
+                <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+                  <MarkdownRenderer content={claim.fraudAnalysis.explanation} />
+                </div>
+              </div>
+            )}
           </div>
+
+          
 
           {/* Right Column - Metadata */}
           <div className="space-y-6">

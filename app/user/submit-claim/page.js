@@ -60,6 +60,11 @@ export default function SubmitClaimPage() {
     setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const loadLauraStormDemo = () => {
+    setDescription('A severe storm in Adelaide caused a 20-hour power outage at my home. I lost approximately AUD 250 worth of refrigerated and frozen food due to spoilage. I am claiming reimbursement for the spoiled food items.');
+    setError('');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -190,9 +195,18 @@ export default function SubmitClaimPage() {
 
             {/* Description */}
             <div className="bg-white rounded-xl shadow-lg p-6">
-              <label htmlFor="description" className="block text-sm font-semibold text-gray-900 mb-2">
-                Incident Description *
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label htmlFor="description" className="block text-sm font-semibold text-gray-900">
+                  Incident Description *
+                </label>
+                <button
+                  type="button"
+                  onClick={loadLauraStormDemo}
+                  className="text-xs px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors"
+                >
+                  Load Laura Storm Demo
+                </button>
+              </div>
               <textarea
                 id="description"
                 rows={6}
@@ -205,6 +219,9 @@ export default function SubmitClaimPage() {
               />
               <p className={`mt-2 text-sm ${description.trim().length >= 10 ? 'text-green-600' : 'text-gray-500'}`}>
                 {description.trim().length}/10 characters {description.trim().length >= 10 ? '✓' : '(required)'}
+              </p>
+              <p className="mt-2 text-xs text-gray-500">
+                Your claim will run through Nemo agents: planner, cyber, coverage, weather, fraud, payout, and audit before human review.
               </p>
             </div>
 

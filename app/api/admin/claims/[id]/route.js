@@ -49,6 +49,10 @@ export async function GET(request, { params }) {
           riskLevel: claim.riskLevel || claim.fraudAnalysis?.riskLevel || 'unknown',
           explanation: claim.aiExplanation || claim.fraudAnalysis?.explanation || 'Analysis pending'
         },
+        agentWorkflow: claim.agentWorkflow || null,
+        payoutDecision: claim.payoutDecision || null,
+        auditSummary: claim.auditSummary || null,
+        processingSummary: claim.processingSummary || null,
         status: claim.status,
         reviewNotes: claim.reviewNotes,
         reviewedAt: claim.reviewedAt,

@@ -12,9 +12,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "SentinelClaims - Allianz Insurance Fraud Detection",
-  description: "AI-powered insurance claims processing and fraud detection platform by Allianz",
-  keywords: "insurance, fraud detection, claims processing, AI, Allianz",
+  title: "SentinelClaims - Insurance Fraud Detection",
+  description: "AI-powered insurance claims processing and fraud detection platform",
+  keywords: "insurance, fraud detection, claims processing, AI",
 };
 
 export default function RootLayout({ children }) {

@@ -58,6 +58,10 @@ export async function GET(request) {
           riskLevel: claim.riskLevel || claim.fraudAnalysis?.riskLevel || 'unknown',
           explanation: claim.aiExplanation || claim.fraudAnalysis?.explanation || 'Analysis pending'
         },
+        agentWorkflow: claim.agentWorkflow || null,
+        payoutDecision: claim.payoutDecision || null,
+        auditSummary: claim.auditSummary || null,
+        processingSummary: claim.processingSummary || null,
         uploadedFiles: claim.uploadedFiles || claim.filePaths?.map(path => ({ filePath: path })) || [],
         audioPath: claim.audioPath,
         reviewNotes: claim.reviewNotes,

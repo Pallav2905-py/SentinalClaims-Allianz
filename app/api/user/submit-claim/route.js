@@ -1,11 +1,8 @@
 import { NextResponse } from 'next/server';
 import { parseFormData } from '@/lib/upload-helper';
 import ClaimModel from '@/lib/mongodb-claims';
-import { extractFeaturesFromClaim, generateFraudExplanation } from '@/lib/groq-service';
-import { predictFraud } from '@/lib/prediction-service';
 import { auth } from '@/lib/auth';
-import { extractTextFromPDFs, combinePDFTexts } from '@/lib/pdf-parser';
-import { multiAngleFraudAnalysis } from '@/lib/fraud-analysis-service';
+import { runNemoClaimWorkflow } from '@/lib/nemo-agents-service';
 
 export const runtime = 'nodejs';
 
@@ -57,7 +54,7 @@ export async function POST(request) {
     return NextResponse.json(
       {
         success: true,
-        message: 'Claim submitted successfully. Processing fraud detection...',
+        message: 'Claim submitted successfully. Nemo multi-agent workflow is now processing your claim.',
         claimId: initialClaim._id.toString(),
         status: 'processing',
       },
@@ -80,45 +77,19 @@ async function processClaimAsync(claimId, description, files) {
   try {
     console.log(`Processing claim ${claimId}...`);
 
-    // Step 0: Extract text from PDFs if any
-    console.log('Extracting text from PDF files...');
-    const pdfTextMap = await extractTextFromPDFs(files);
-    const pdfText = combinePDFTexts(pdfTextMap);
-    if (pdfText) {
-      console.log(`Extracted text from ${Object.keys(pdfTextMap).length} PDF file(s)`);
-    }
+    // Full multi-agent orchestration (planner, cyber, coverage, weather, fraud, payout, audit)
+    const nemoResult = await runNemoClaimWorkflow({
+      claimId,
+      description,
+      files,
+    });
 
-    // Step 1: Extract features using Groq (with PDF text)
-    console.log('Extracting features...');
-    const extractedFeatures = await extractFeaturesFromClaim(description, files.length, pdfText);
-    console.log('Features extracted:', extractedFeatures);
-
-    // Step 2: Get fraud prediction from FastAPI
-    console.log('Getting fraud prediction...');
-    const fraudResult = await predictFraud(extractedFeatures);
-    console.log('Fraud prediction:', fraudResult);
-
-    // Step 3: Perform multi-angle fraud analysis
-    console.log('Performing multi-angle fraud analysis...');
-    const comprehensiveAnalysis = await multiAngleFraudAnalysis(
-      { textDescription: description, fileCount: files.length },
-      fraudResult,
-      extractedFeatures
-    );
-    console.log('Comprehensive analysis complete');
-
-    // Step 4: Generate AI explanation (with PDF text)
-    console.log('Generating explanation...');
-    const explanation = await generateFraudExplanation(description, extractedFeatures, fraudResult, pdfText);
-    console.log('Explanation generated');
-
-    // Step 5: Update claim with comprehensive results
     await ClaimModel.updateFraudAnalysis(claimId, {
-      extractedFeatures,
-      fraudScore: fraudResult.fraud_probability,
-      riskLevel: fraudResult.risk_level,
-      aiExplanation: explanation,
-      comprehensiveAnalysis, // Store multi-angle analysis
+      ...nemoResult.fraudBundle,
+      agentWorkflow: nemoResult.agentWorkflow,
+      payoutDecision: nemoResult.payoutDecision,
+      auditSummary: nemoResult.auditSummary,
+      processingSummary: nemoResult.processingSummary,
     });
 
     // Update status to pending (ready for admin review)
@@ -136,6 +107,11 @@ async function processClaimAsync(claimId, description, files) {
         fraudScore: null,
         riskLevel: null,
         aiExplanation: `Processing failed: ${error.message}`,
+        processingSummary: {
+          finalStatus: 'error',
+          humanDecision: 'manual-review',
+          pipelineVersion: 'nemo-v1',
+        },
       });
     } catch (updateError) {
       console.error('Failed to update claim with error status:', updateError);
@@ -173,6 +149,10 @@ export async function GET(request) {
         status: claim.status,
         uploadedFiles: claim.uploadedFiles || [],
         fraudAnalysis: claim.fraudAnalysis,
+        agentWorkflow: claim.agentWorkflow || null,
+        payoutDecision: claim.payoutDecision || null,
+        auditSummary: claim.auditSummary || null,
+        processingSummary: claim.processingSummary || null,
         reviewNotes: claim.reviewNotes,
         reviewedAt: claim.reviewedAt,
         createdAt: claim.createdAt,

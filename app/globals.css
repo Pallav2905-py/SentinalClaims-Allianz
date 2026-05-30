@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
 :root {
-  /* Allianz Brand Colors */
-  --allianz-blue: #003781;
-  --allianz-blue-dark: #002455;
-  --allianz-blue-light: #0055b8;
-  --allianz-blue-lighter: #e6f0ff;
+  /* Brand Colors */
+  --brand-blue: #003781;
+  --brand-blue-dark: #002455;
+  --brand-blue-light: #0055b8;
+  --brand-blue-lighter: #e6f0ff;
   
   /* Semantic Colors */
   --background: #ffffff;
@@ -36,11 +36,11 @@
   --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
   
-  /* Allianz Brand Colors in Tailwind */
-  --color-allianz-blue: var(--allianz-blue);
-  --color-allianz-blue-dark: var(--allianz-blue-dark);
-  --color-allianz-blue-light: var(--allianz-blue-light);
-  --color-allianz-blue-lighter: var(--allianz-blue-lighter);
+  /* Brand Colors in Tailwind */
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-blue-dark: var(--brand-blue-dark);
+  --color-brand-blue-light: var(--brand-blue-light);
+  --color-brand-blue-lighter: var(--brand-blue-lighter);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -81,7 +81,7 @@ body {
 
 /* Professional Focus Styles */
 :focus-visible {
-  outline: 2px solid var(--allianz-blue);
+  outline: 2px solid var(--brand-blue);
   outline-offset: 2px;
 }
 
@@ -128,10 +128,10 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--allianz-blue-light);
+  background: var(--brand-blue-light);
 }
 
 /* Selection */
 ::selection {
-  background-color: var(--allianz-blue-lighter);
-  color: var(--allianz-blue-dark);}
+  background-color: var(--brand-blue-lighter);
+  color: var(--brand-blue-dark);}

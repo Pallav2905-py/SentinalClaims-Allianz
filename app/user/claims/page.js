@@ -84,6 +84,12 @@ export default function UserClaimsPage() {
     });
   };
 
+  const formatAgentName = (name) => {
+    return (name || 'agent')
+      .replace('-agent', '')
+      .replace(/(^|\s)\S/g, (t) => t.toUpperCase());
+  };
+
   const openClaimDetails = (claim) => {
     setSelectedClaim(claim);
     setShowModal(true);
@@ -285,6 +291,79 @@ export default function UserClaimsPage() {
                       <p className="text-sm text-gray-900 whitespace-pre-wrap">
                         {selectedClaim.fraudAnalysis.explanation}
                       </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Nemo Agent Workflow */}
+                {selectedClaim.agentWorkflow?.steps?.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-bold text-gray-700 mb-2">Nemo Agent Workflow</h4>
+                    <p className="text-xs text-gray-500 mb-3">
+                      Completed in about {selectedClaim.agentWorkflow.durationSeconds || 0} second(s)
+                    </p>
+                    <div className="space-y-2">
+                      {selectedClaim.agentWorkflow.steps.map((step, idx) => (
+                        <div key={`step-${idx}`} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm font-semibold text-gray-900">
+                              {idx + 1}. {formatAgentName(step.agent)} Agent
+                            </p>
+                            <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700 border border-blue-200">
+                              {step.decision}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-600 mt-1">{step.summary}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Payout Recommendation */}
+                {selectedClaim.payoutDecision && (
+                  <div>
+                    <h4 className="text-sm font-bold text-gray-700 mb-2">Payout Recommendation</h4>
+                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 grid grid-cols-2 gap-3">
+                      <div>
+                        <p className="text-xs text-gray-500">Claimed Amount</p>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {selectedClaim.payoutDecision.currency || 'AUD'} {selectedClaim.payoutDecision.claimedAmount ?? 0}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Recommended Payout</p>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {selectedClaim.payoutDecision.currency || 'AUD'} {selectedClaim.payoutDecision.recommendedPayout ?? 0}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Eligible</p>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {selectedClaim.payoutDecision.eligible ? 'Yes' : 'No'}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Fast Track (&lt;= 500)</p>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {selectedClaim.payoutDecision.fastTrack ? 'Yes' : 'No'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Audit Summary */}
+                {selectedClaim.auditSummary?.summary && (
+                  <div>
+                    <h4 className="text-sm font-bold text-gray-700 mb-2">Audit Agent Summary</h4>
+                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                      <p className="text-sm text-gray-900 whitespace-pre-wrap">{selectedClaim.auditSummary.summary}</p>
+                      {selectedClaim.auditSummary.humanRecommendation && (
+                        <p className="text-xs text-gray-600 mt-2">
+                          Human recommendation: <span className="font-semibold">{selectedClaim.auditSummary.humanRecommendation}</span>
+                        </p>
+                      )}
                     </div>
                   </div>
                 )}
