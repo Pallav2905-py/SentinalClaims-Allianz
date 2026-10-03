@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Script from 'next/script';
 import { useSession } from '@/lib/auth-client';
-import MarkdownRenderer from '@/components/MarkdownRenderer';
+import { getInsuranceTypeInfo } from '@/lib/demo-policies';
 
 export default function PolicyCopilotPage() {
   const { data: session, isPending } = useSession();

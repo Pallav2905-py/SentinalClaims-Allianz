@@ -124,22 +124,16 @@ export default function UserClaimsPage() {
           </div>
           <div className="flex gap-3">
             <Link
-              href="/user/submit-claim"
-              className="px-4 py-2 text-sm font-semibold bg-[#003781] text-white hover:bg-[#002455] rounded-lg transition-colors"
-            >
-              Submit New Claim
-            </Link>
-            <Link
-              href="/user/policy"
+              href="/user/policies"
               className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              Policies
+              Your Policies
             </Link>
             <Link
-              href="/"
+              href="/dashboard"
               className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              Home
+              Dashboard
             </Link>
           </div>
         </div>
@@ -159,13 +153,19 @@ export default function UserClaimsPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             <h3 className="mt-4 text-xl font-bold text-gray-900">No claims yet</h3>
-            <p className="mt-2 text-sm text-gray-600">Get started by submitting your first claim.</p>
-            <div className="mt-6">
+            <p className="mt-2 text-sm text-gray-600">Get started by filing your first claim with our AI assistant.</p>
+            <div className="mt-6 flex gap-4 justify-center">
+              <Link
+                href="/user/policies"
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg"
+              >
+                View Your Policies
+              </Link>
               <Link
                 href="/user/submit-claim"
-                className="inline-flex items-center px-6 py-3 border border-transparent shadow-md text-base font-semibold rounded-lg text-white bg-[#003781] hover:bg-[#002455] transition-colors"
+                className="inline-flex items-center px-6 py-3 border-2 border-blue-500 text-blue-600 font-bold rounded-xl hover:bg-blue-50 transition-all"
               >
-                Submit Claim
+                File New Claim
               </Link>
             </div>
           </div>

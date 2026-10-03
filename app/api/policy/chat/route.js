@@ -115,7 +115,7 @@ Be professional, clear, and helpful. If you don't know something, say so. Keep r
     // Call Groq API
     const completion = await groq.chat.completions.create({
       messages: messages,
-      model: 'llama-3.3-70b-versatile',
+      model: 'openai/gpt-oss-120b',
       temperature: 0.7,
       max_tokens: 2000,
       top_p: 1,

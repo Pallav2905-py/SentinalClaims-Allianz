@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { parseFormData } from '@/lib/upload-helper';
 import ClaimModel from '@/lib/mongodb-claims';
 import { auth } from '@/lib/auth';
-import { runNemoClaimWorkflow } from '@/lib/nemo-agents-service';
 
 export const runtime = 'nodejs';
 
@@ -35,6 +34,17 @@ export async function POST(request) {
       );
     }
 
+    // Parse claim metadata
+    const claimType = fields.claimType || 'general';
+    let claimAnswers = {};
+    try {
+      if (fields.claimAnswers) {
+        claimAnswers = JSON.parse(fields.claimAnswers);
+      }
+    } catch (e) {
+      console.warn('Could not parse claimAnswers:', e);
+    }
+
     // Extract file information
     const audioFile = files.find(f => ['.mp3', '.wav', '.m4a'].some(ext => f.filename.endsWith(ext)));
     const audioPath = audioFile ? audioFile.path : null;
@@ -43,20 +53,19 @@ export async function POST(request) {
     const initialClaim = await ClaimModel.create({
       userId: session.user.id,
       textDescription: fields.textDescription,
+      claimType: claimType,
+      claimAnswers: claimAnswers,
       audioPath: audioPath,
       uploadedFiles: files,
-      status: 'processing',
+      status: 'AWAITING_PROCESSING', // Awaiting admin to click "Process Claim"
     });
-
-    // Process claim in background (async)
-    processClaimAsync(initialClaim._id.toString(), fields.textDescription, files);
 
     return NextResponse.json(
       {
         success: true,
-        message: 'Claim submitted successfully. Nemo multi-agent workflow is now processing your claim.',
+        message: 'Claim submitted successfully. Awaiting admin processing.',
         claimId: initialClaim._id.toString(),
-        status: 'processing',
+        status: 'AWAITING_PROCESSING',
       },
       { status: 201 }
     );
@@ -67,55 +76,6 @@ export async function POST(request) {
       { error: error.message || 'Failed to submit claim' },
       { status: 500 }
     );
-  }
-}
-
-/**
- * Process claim asynchronously
- */
-async function processClaimAsync(claimId, description, files) {
-  try {
-    console.log(`Processing claim ${claimId}...`);
-
-    // Full multi-agent orchestration (planner, cyber, coverage, weather, fraud, payout, audit)
-    const nemoResult = await runNemoClaimWorkflow({
-      claimId,
-      description,
-      files,
-    });
-
-    await ClaimModel.updateFraudAnalysis(claimId, {
-      ...nemoResult.fraudBundle,
-      agentWorkflow: nemoResult.agentWorkflow,
-      payoutDecision: nemoResult.payoutDecision,
-      auditSummary: nemoResult.auditSummary,
-      processingSummary: nemoResult.processingSummary,
-    });
-
-    // Update status to pending (ready for admin review)
-    await ClaimModel.updateStatus(claimId, 'pending');
-
-    console.log(`Claim ${claimId} processed successfully`);
-  } catch (error) {
-    console.error(`Error processing claim ${claimId}:`, error);
-    
-    // Update claim with error status
-    try {
-      await ClaimModel.updateStatus(claimId, 'error');
-      await ClaimModel.updateFraudAnalysis(claimId, {
-        extractedFeatures: null,
-        fraudScore: null,
-        riskLevel: null,
-        aiExplanation: `Processing failed: ${error.message}`,
-        processingSummary: {
-          finalStatus: 'error',
-          humanDecision: 'manual-review',
-          pipelineVersion: 'nemo-v1',
-        },
-      });
-    } catch (updateError) {
-      console.error('Failed to update claim with error status:', updateError);
-    }
   }
 }
 
