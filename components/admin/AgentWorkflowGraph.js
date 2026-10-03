@@ -3,262 +3,285 @@
 import { useState } from 'react';
 
 const AGENT_CONFIG = {
-  'planner-agent': {
-    name: 'Planner Agent',
-    icon: '🎯',
-    color: 'blue',
-    description: 'Routes claim to specialized agents'
-  },
-  'cyber-agent': {
-    name: 'Security Agent',
-    icon: '🔒',
-    color: 'purple',
-    description: 'Validates security & data handling'
-  },
-  'coverage-agent': {
-    name: 'Coverage Agent',
-    icon: '📋',
-    color: 'indigo',
-    description: 'Evaluates policy coverage eligibility'
-  },
-  'weather-agent': {
-    name: 'Weather Agent',
-    icon: '🌤️',
-    color: 'cyan',
-    description: 'Verifies incident weather conditions'
-  },
-  'fraud-agent': {
-    name: 'Fraud Detection',
-    icon: '🔍',
-    color: 'red',
-    description: 'Multi-angle fraud risk analysis'
-  },
-  'payout-agent': {
-    name: 'Payout Agent',
-    icon: '💰',
-    color: 'green',
-    description: 'Calculates recommended payout'
-  },
-  'audit-agent': {
-    name: 'Audit Agent',
-    icon: '✓',
-    color: 'gray',
-    description: 'Final audit and recommendation'
-  },
+  'planner-agent': { name: 'Planner Agent', icon: '🎯', color: '#4f7aff', colorDim: 'rgba(79,122,255,0.12)', colorBorder: 'rgba(79,122,255,0.35)', description: 'Orchestrates and routes claim to agents' },
+  'cyber-agent': { name: 'Security Agent', icon: '🔒', color: '#a78bfa', colorDim: 'rgba(167,139,250,0.12)', colorBorder: 'rgba(167,139,250,0.35)', description: 'Validates security & data handling' },
+  'coverage-agent': { name: 'Coverage Agent', icon: '📋', color: '#06b6d4', colorDim: 'rgba(6,182,212,0.12)', colorBorder: 'rgba(6,182,212,0.35)', description: 'Evaluates policy coverage eligibility' },
+  'weather-agent': { name: 'Weather Agent', icon: '🌤️', color: '#22d3ee', colorDim: 'rgba(34,211,238,0.12)', colorBorder: 'rgba(34,211,238,0.35)', description: 'Verifies incident weather conditions' },
+  'fraud-agent': { name: 'Fraud Detection', icon: '🔍', color: '#f87171', colorDim: 'rgba(248,113,113,0.12)', colorBorder: 'rgba(248,113,113,0.35)', description: 'Multi-angle fraud risk analysis' },
+  'payout-agent': { name: 'Payout Agent', icon: '💰', color: '#34d399', colorDim: 'rgba(52,211,153,0.12)', colorBorder: 'rgba(52,211,153,0.35)', description: 'Calculates recommended payout amount' },
+  'audit-agent': { name: 'Audit Agent', icon: '✅', color: '#94a3b8', colorDim: 'rgba(148,163,184,0.12)', colorBorder: 'rgba(148,163,184,0.35)', description: 'Final audit and human recommendation' },
 };
 
-const getColorClasses = (color, status) => {
-  const colors = {
-    blue: {
-      bg: 'bg-blue-50',
-      border: status === 'completed' ? 'border-blue-500' : status === 'running' ? 'border-blue-400 animate-pulse' : 'border-gray-300',
-      text: 'text-blue-700',
-      iconBg: 'bg-blue-100',
-    },
-    purple: {
-      bg: 'bg-purple-50',
-      border: status === 'completed' ? 'border-purple-500' : status === 'running' ? 'border-purple-400 animate-pulse' : 'border-gray-300',
-      text: 'text-purple-700',
-      iconBg: 'bg-purple-100',
-    },
-    indigo: {
-      bg: 'bg-indigo-50',
-      border: status === 'completed' ? 'border-indigo-500' : status === 'running' ? 'border-indigo-400 animate-pulse' : 'border-gray-300',
-      text: 'text-indigo-700',
-      iconBg: 'bg-indigo-100',
-    },
-    cyan: {
-      bg: 'bg-cyan-50',
-      border: status === 'completed' ? 'border-cyan-500' : status === 'running' ? 'border-cyan-400 animate-pulse' : 'border-gray-300',
-      text: 'text-cyan-700',
-      iconBg: 'bg-cyan-100',
-    },
-    red: {
-      bg: 'bg-red-50',
-      border: status === 'completed' ? 'border-red-500' : status === 'running' ? 'border-red-400 animate-pulse' : 'border-gray-300',
-      text: 'text-red-700',
-      iconBg: 'bg-red-100',
-    },
-    green: {
-      bg: 'bg-green-50',
-      border: status === 'completed' ? 'border-green-500' : status === 'running' ? 'border-green-400 animate-pulse' : 'border-gray-300',
-      text: 'text-green-700',
-      iconBg: 'bg-green-100',
-    },
-    gray: {
-      bg: 'bg-gray-50',
-      border: status === 'completed' ? 'border-gray-500' : status === 'running' ? 'border-gray-400 animate-pulse' : 'border-gray-300',
-      text: 'text-gray-700',
-      iconBg: 'bg-gray-100',
-    },
-  };
-  return colors[color] || colors.gray;
-};
-
-const getStatusIcon = (decision) => {
-  if (decision === 'continue' || decision === 'covered' || decision === 'matched' || decision === 'recommend-pay') {
-    return (
-      <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-      </svg>
-    );
-  } else if (decision === 'stop' || decision === 'not-covered' || decision === 'not-matched' || decision === 'recommend-deny') {
-    return (
-      <svg className="w-4 h-4 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-      </svg>
-    );
-  } else if (decision === 'low' || decision === 'approve') {
-    return (
-      <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-      </svg>
-    );
-  } else if (decision === 'medium' || decision === 'manual-review') {
-    return (
-      <svg className="w-4 h-4 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
-        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-      </svg>
-    );
-  } else if (decision === 'high' || decision === 'reject') {
-    return (
-      <svg className="w-4 h-4 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-      </svg>
-    );
-  }
-  return null;
+const DECISION_STYLES = {
+  continue: { color: '#34d399', bg: 'rgba(52,211,153,0.12)', border: 'rgba(52,211,153,0.3)', icon: '✓' },
+  covered: { color: '#34d399', bg: 'rgba(52,211,153,0.12)', border: 'rgba(52,211,153,0.3)', icon: '✓' },
+  matched: { color: '#34d399', bg: 'rgba(52,211,153,0.12)', border: 'rgba(52,211,153,0.3)', icon: '✓' },
+  'recommend-pay': { color: '#34d399', bg: 'rgba(52,211,153,0.12)', border: 'rgba(52,211,153,0.3)', icon: '✓' },
+  approve: { color: '#34d399', bg: 'rgba(52,211,153,0.12)', border: 'rgba(52,211,153,0.3)', icon: '✓' },
+  low: { color: '#34d399', bg: 'rgba(52,211,153,0.12)', border: 'rgba(52,211,153,0.3)', icon: '✓' },
+  stop: { color: '#f87171', bg: 'rgba(248,113,113,0.12)', border: 'rgba(248,113,113,0.3)', icon: '✕' },
+  'not-covered': { color: '#f87171', bg: 'rgba(248,113,113,0.12)', border: 'rgba(248,113,113,0.3)', icon: '✕' },
+  'not-matched': { color: '#f87171', bg: 'rgba(248,113,113,0.12)', border: 'rgba(248,113,113,0.3)', icon: '✕' },
+  'recommend-deny': { color: '#f87171', bg: 'rgba(248,113,113,0.12)', border: 'rgba(248,113,113,0.3)', icon: '✕' },
+  reject: { color: '#f87171', bg: 'rgba(248,113,113,0.12)', border: 'rgba(248,113,113,0.3)', icon: '✕' },
+  high: { color: '#f87171', bg: 'rgba(248,113,113,0.12)', border: 'rgba(248,113,113,0.3)', icon: '⚠' },
+  medium: { color: '#fbbf24', bg: 'rgba(251,191,36,0.12)', border: 'rgba(251,191,36,0.3)', icon: '~' },
+  'manual-review': { color: '#fbbf24', bg: 'rgba(251,191,36,0.12)', border: 'rgba(251,191,36,0.3)', icon: '~' },
 };
 
 export default function AgentWorkflowGraph({ workflow, processing, onStepSelect, activeStep }) {
   const [expandedSteps, setExpandedSteps] = useState(new Set());
 
-  if (!workflow || !workflow.steps) {
-    return null;
-  }
+  if (!workflow?.steps) return null;
 
   const toggleStep = (index) => {
     const newExpanded = new Set(expandedSteps);
-    if (newExpanded.has(index)) {
-      newExpanded.delete(index);
-    } else {
-      newExpanded.add(index);
-    }
+    if (newExpanded.has(index)) newExpanded.delete(index);
+    else newExpanded.add(index);
     setExpandedSteps(newExpanded);
   };
 
+  const totalDurationMs = workflow.steps.reduce((sum, s) => sum + (s.durationMs || 0), 0);
+
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6">
-      <div className="flex items-center justify-between mb-6">
+    <div style={{
+      background: 'rgba(14,18,30,0.9)',
+      border: '1px solid rgba(255,255,255,0.08)',
+      borderRadius: '16px',
+      overflow: 'hidden',
+      fontFamily: 'Inter, sans-serif',
+    }}>
+      {/* Header */}
+      <div style={{
+        padding: '16px 20px',
+        borderBottom: '1px solid rgba(255,255,255,0.07)',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        background: 'rgba(255,255,255,0.02)',
+      }}>
         <div>
-          <h2 className="text-lg font-bold text-gray-900">Agent Workflow</h2>
-          <p className="text-sm text-gray-600 mt-1">
-            {workflow.durationSeconds ? `Completed in ${workflow.durationSeconds}s` : 'In progress...'}
-          </p>
-        </div>
-        {workflow.models && (
-          <div className="text-xs text-gray-500">
-            <div>Model: {workflow.models.primary}</div>
+          <div style={{ fontSize: '14px', fontWeight: 700, color: '#f0f4ff' }}>Agent Timeline</div>
+          <div style={{ fontSize: '11px', color: '#8892b0', marginTop: '2px' }}>
+            {workflow.durationSeconds ? `Pipeline completed in ${workflow.durationSeconds}s` : 'In progress...'}
           </div>
-        )}
+        </div>
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+          {workflow.models && (
+            <div style={{
+              fontSize: '10px', color: '#8892b0',
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              padding: '4px 10px', borderRadius: '6px',
+            }}>
+              Model: <span style={{ color: '#7b9fff' }}>{workflow.models.primary?.split('/').pop() || 'AI'}</span>
+            </div>
+          )}
+          <div style={{
+            fontSize: '12px', fontWeight: 600, color: '#34d399',
+            background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.3)',
+            padding: '4px 12px', borderRadius: '100px',
+          }}>
+            {workflow.steps.length} agents ✓
+          </div>
+        </div>
       </div>
 
-      <div className="space-y-3">
+      {/* Progress bar */}
+      <div style={{ height: '3px', background: 'rgba(255,255,255,0.05)' }}>
+        <div style={{
+          height: '100%',
+          width: processing ? '60%' : '100%',
+          background: 'linear-gradient(90deg, #4f7aff, #10b981)',
+          transition: 'width 0.5s ease',
+        }} />
+      </div>
+
+      {/* Steps */}
+      <div style={{ padding: '12px' }}>
         {workflow.steps.map((step, index) => {
           const config = AGENT_CONFIG[step.agent] || {
             name: step.agent,
             icon: '⚙️',
-            color: 'gray',
-            description: ''
+            color: '#94a3b8',
+            colorDim: 'rgba(148,163,184,0.12)',
+            colorBorder: 'rgba(148,163,184,0.35)',
+            description: 'AI Processing Agent',
           };
-          
-          const status = 'completed';
-          const colors = getColorClasses(config.color, status);
+          const decisionStyle = DECISION_STYLES[step.decision] || { color: '#94a3b8', bg: 'rgba(148,163,184,0.1)', border: 'rgba(148,163,184,0.3)', icon: '•' };
           const isExpanded = expandedSteps.has(index);
-          const statusIcon = getStatusIcon(step.decision);
+          const durationPct = totalDurationMs ? ((step.durationMs || 0) / totalDurationMs * 100).toFixed(0) : 0;
 
           return (
-            <div
-              key={index}
-              className={`rounded-lg border-2 transition-all ${colors.border} ${colors.bg}`}
-            >
-              <button
-                onClick={() => toggleStep(index)}
-                className="w-full px-4 py-3 flex items-center justify-between hover:opacity-80 transition-opacity"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className={`w-10 h-10 rounded-lg ${colors.iconBg} flex items-center justify-center text-lg flex-shrink-0`}>
-                    {config.icon}
-                  </div>
-                  <div className="text-left">
-                    <div className="flex items-center space-x-2">
-                      <h3 className={`text-sm font-bold ${colors.text}`}>
-                        {config.name}
-                      </h3>
-                      {statusIcon}
-                      <span className="text-xs font-medium text-gray-600">
-                        {step.durationMs ? `${step.durationMs}ms` : ''}
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-600 mt-0.5">{step.summary}</p>
-                  </div>
-                </div>
-                <svg
-                  className={`w-5 h-5 text-gray-500 transition-transform ${isExpanded ? 'transform rotate-180' : ''}`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+            <div key={index} style={{ marginBottom: '8px' }}>
+              {/* Connector line */}
+              {index > 0 && (
+                <div style={{
+                  width: '1px', height: '12px', margin: '0 auto',
+                  marginLeft: '31px',
+                  background: 'linear-gradient(180deg, rgba(79,122,255,0.4), rgba(79,122,255,0.1))',
+                }} />
+              )}
+
+              <div style={{
+                borderRadius: '12px',
+                border: `1px solid ${config.colorBorder}`,
+                background: config.colorDim,
+                overflow: 'hidden',
+                transition: 'all 0.2s ease',
+              }}>
+                <button
+                  onClick={() => toggleStep(index)}
+                  style={{
+                    width: '100%', padding: '12px 14px',
+                    display: 'flex', alignItems: 'center', gap: '12px',
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    textAlign: 'left',
+                  }}
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-
-              {isExpanded && (
-                <div className="px-4 pb-4 space-y-3 border-t border-gray-200 pt-3 mt-1">
-                  <div className="grid grid-cols-2 gap-4 text-xs">
-                    <div>
-                      <span className="font-semibold text-gray-700">Decision:</span>
-                      <span className="ml-2 px-2 py-0.5 bg-white rounded font-medium">
-                        {step.decision}
-                      </span>
+                  {/* Step number + icon */}
+                  <div style={{ position: 'relative', flexShrink: 0 }}>
+                    <div style={{
+                      width: '38px', height: '38px', borderRadius: '10px',
+                      background: `${config.color}1a`,
+                      border: `1.5px solid ${config.colorBorder}`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '17px',
+                    }}>
+                      {config.icon}
                     </div>
-                    <div>
-                      <span className="font-semibold text-gray-700">Duration:</span>
-                      <span className="ml-2">{step.durationMs}ms</span>
+                    <div style={{
+                      position: 'absolute', top: '-4px', right: '-4px',
+                      width: '16px', height: '16px', borderRadius: '50%',
+                      background: '#0a0d14',
+                      border: `2px solid ${decisionStyle.color}`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '8px', color: decisionStyle.color, fontWeight: 700,
+                    }}>
+                      {decisionStyle.icon}
                     </div>
                   </div>
 
-                  {step.details && (
-                    <div className="bg-white rounded-lg p-3 border border-gray-200">
-                      <h4 className="text-xs font-bold text-gray-700 mb-2">Agent Output</h4>
-                      <pre className="text-xs text-gray-600 whitespace-pre-wrap overflow-x-auto">
-                        {JSON.stringify(step.details, null, 2)}
-                      </pre>
+                  {/* Info */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px' }}>
+                      <span style={{ fontSize: '13px', fontWeight: 700, color: config.color }}>
+                        {config.name}
+                      </span>
+                      <span style={{
+                        padding: '1px 8px', borderRadius: '100px',
+                        background: decisionStyle.bg, border: `1px solid ${decisionStyle.border}`,
+                        fontSize: '10px', fontWeight: 600, color: decisionStyle.color,
+                        letterSpacing: '0.03em',
+                      }}>
+                        {step.decision?.replace('-', ' ').toUpperCase()}
+                      </span>
                     </div>
-                  )}
-                </div>
-              )}
+                    <p style={{ fontSize: '12px', color: '#8892b0', margin: 0, lineHeight: 1.4 }}>
+                      {step.summary}
+                    </p>
+                  </div>
 
-              {/* Connector Line */}
-              {index < workflow.steps.length - 1 && (
-                <div className="flex justify-center py-1">
-                  <div className="w-0.5 h-4 bg-gray-300"></div>
+                  {/* Right: timing */}
+                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    <div style={{ fontSize: '12px', fontWeight: 600, color: '#f0f4ff' }}>
+                      {step.durationMs ? `${step.durationMs}ms` : '—'}
+                    </div>
+                    <div style={{ fontSize: '10px', color: '#8892b0', marginTop: '2px' }}>{durationPct}% of total</div>
+                  </div>
+
+                  {/* Expand arrow */}
+                  <div style={{
+                    color: '#8892b0', fontSize: '14px', flexShrink: 0,
+                    transform: isExpanded ? 'rotate(180deg)' : 'rotate(0)',
+                    transition: 'transform 0.2s ease',
+                  }}>▾</div>
+                </button>
+
+                {/* Duration progress mini bar */}
+                <div style={{ height: '2px', background: 'rgba(255,255,255,0.05)', margin: '0 14px' }}>
+                  <div style={{
+                    height: '100%', borderRadius: '2px',
+                    width: `${durationPct}%`,
+                    background: config.color,
+                    opacity: 0.6,
+                  }} />
                 </div>
-              )}
+
+                {/* Expanded details */}
+                {isExpanded && step.details && (
+                  <div style={{
+                    padding: '14px', margin: '0 8px 8px',
+                    background: 'rgba(0,0,0,0.3)', borderRadius: '8px',
+                    marginTop: '8px',
+                    border: '1px solid rgba(255,255,255,0.05)',
+                  }}>
+                    <div style={{
+                      display: 'grid', gridTemplateColumns: '1fr 1fr',
+                      gap: '12px', marginBottom: '12px',
+                    }}>
+                      {[
+                        { label: 'Decision', value: step.decision },
+                        { label: 'Duration', value: `${step.durationMs}ms` },
+                        { label: 'Started', value: new Date(step.startedAt).toLocaleTimeString() },
+                        { label: 'Finished', value: new Date(step.finishedAt).toLocaleTimeString() },
+                      ].map(item => (
+                        <div key={item.label} style={{
+                          background: 'rgba(255,255,255,0.04)',
+                          borderRadius: '6px', padding: '8px 10px',
+                        }}>
+                          <div style={{ fontSize: '10px', color: '#8892b0', marginBottom: '2px' }}>{item.label}</div>
+                          <div style={{ fontSize: '12px', color: '#f0f4ff', fontWeight: 500 }}>{item.value}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div style={{ fontSize: '11px', fontWeight: 600, color: '#8892b0', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      Agent Output
+                    </div>
+                    <pre style={{
+                      background: 'rgba(0,0,0,0.4)',
+                      border: '1px solid rgba(255,255,255,0.06)',
+                      borderRadius: '6px', padding: '10px',
+                      fontSize: '11px', color: '#94a3b8',
+                      whiteSpace: 'pre-wrap', overflowX: 'auto',
+                      fontFamily: 'JetBrains Mono, monospace',
+                      maxHeight: '200px', overflowY: 'auto',
+                      margin: 0,
+                    }}>
+                      {JSON.stringify(step.details, null, 2)}
+                    </pre>
+                  </div>
+                )}
+              </div>
             </div>
           );
         })}
-      </div>
 
-      {/* Human Review Step */}
-      <div className="mt-3 rounded-lg border-2 border-yellow-300 bg-yellow-50 px-4 py-3">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-lg bg-yellow-100 flex items-center justify-center text-lg flex-shrink-0">
-            👤
-          </div>
+        {/* Human review terminal node */}
+        <div style={{ marginLeft: '31px', width: '1px', height: '12px', background: 'linear-gradient(180deg, rgba(251,191,36,0.4), rgba(251,191,36,0.1))' }} />
+        <div style={{
+          borderRadius: '12px',
+          border: '1px solid rgba(251,191,36,0.4)',
+          background: 'rgba(251,191,36,0.08)',
+          padding: '12px 14px',
+          display: 'flex', alignItems: 'center', gap: '12px',
+        }}>
+          <div style={{
+            width: '38px', height: '38px', borderRadius: '10px',
+            background: 'rgba(251,191,36,0.15)',
+            border: '1.5px solid rgba(251,191,36,0.4)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '17px',
+          }}>👤</div>
           <div>
-            <h3 className="text-sm font-bold text-yellow-700">Human Review Required</h3>
-            <p className="text-xs text-gray-600 mt-0.5">Final decision pending human reviewer</p>
+            <div style={{ fontSize: '13px', fontWeight: 700, color: '#fbbf24' }}>Human Reviewer</div>
+            <div style={{ fontSize: '12px', color: '#8892b0', marginTop: '2px' }}>Final decision pending — use approve/reject buttons in Results tab</div>
+          </div>
+          <div style={{
+            marginLeft: 'auto', padding: '4px 12px',
+            background: 'rgba(251,191,36,0.15)', border: '1px solid rgba(251,191,36,0.3)',
+            borderRadius: '100px', fontSize: '11px', fontWeight: 600, color: '#fbbf24',
+          }}>
+            AWAITING
           </div>
         </div>
       </div>
